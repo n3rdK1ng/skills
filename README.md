@@ -13,7 +13,8 @@ Or clone and symlink individual skills into `~/.claude/skills/`:
 
 ```sh
 git clone https://github.com/n3rdK1ng/skills.git
-ln -s "$(pwd)/skills/skills/questions" ~/.claude/skills/questions
+cd skills
+ln -s "$(pwd)/skills/questions" ~/.claude/skills/questions
 ```
 
 ## Skills
@@ -22,7 +23,7 @@ ln -s "$(pwd)/skills/skills/questions" ~/.claude/skills/questions
 | --- | --- |
 | [`clickup-task`](skills/clickup-task) | Create or update ClickUp tasks from Freelo tasks (or from scratch) with a strict format and approval workflow. |
 | [`domain-model`](skills/domain-model) | Create or maintain a project's CONTEXT.md domain glossary and docs/adr/ decision records. |
-| [`improve-codebase-architecture`](skills/improve-codebase-architecture) | Find deepening opportunities in a codebase, informed by the domain language in CONTEXT.md and the decisions in docs/adr/. |
+| [`improve-codebase-architecture`](skills/improve-codebase-architecture) | Find deepening opportunities in a codebase, informed by the domain language in CONTEXT.md and the decisions in docs/adr/. Pairs with [`domain-model`](skills/domain-model), which it links into. |
 | [`questions`](skills/questions) | Batch pending ambiguities into structured AskUserQuestion calls instead of plain-text questions. |
 
 > **Note on `clickup-task`:** workspace-specific values (Notion template page
@@ -38,7 +39,7 @@ ln -s "$(pwd)/skills/skills/questions" ~/.claude/skills/questions
 >
 > ## Teamspace / List locations
 >
-> - <your list names>
+> - <your-list-name>
 > ```
 
 ## Community skills I use

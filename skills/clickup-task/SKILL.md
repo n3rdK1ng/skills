@@ -7,7 +7,7 @@ description: >
   brand new tasks unrelated to Freelo. Trigger any time the user pastes a Freelo task description and
   mentions ClickUp, provides a ClickUp task URL alongside task content they want written up, or asks
   to create a ClickUp task without any Freelo content.
-allowed-tools: AskUserQuestion, mcp__claude_ai_ClickUp__clickup_create_task, mcp__claude_ai_ClickUp__clickup_update_task, mcp__claude_ai_ClickUp__clickup_get_task, mcp__claude_ai_ClickUp__clickup_add_tag_to_task, mcp__claude_ai_ClickUp__clickup_get_custom_fields, mcp__claude_ai_ClickUp__clickup_get_list, mcp__claude_ai_ClickUp__clickup_filter_tasks, mcp__claude_ai_ClickUp__clickup_resolve_assignees, mcp__claude_ai_ClickUp__clickup_find_member_by_name
+allowed-tools: AskUserQuestion, mcp__claude_ai_ClickUp__clickup_create_task, mcp__claude_ai_ClickUp__clickup_update_task, mcp__claude_ai_ClickUp__clickup_get_task, mcp__claude_ai_ClickUp__clickup_add_tag_to_task, mcp__claude_ai_ClickUp__clickup_get_custom_fields, mcp__claude_ai_ClickUp__clickup_get_list, mcp__claude_ai_ClickUp__clickup_filter_tasks, mcp__claude_ai_ClickUp__clickup_resolve_assignees, mcp__claude_ai_ClickUp__clickup_find_member_by_name, Read, mcp__claude_ai_Notion__notion-fetch
 ---
 
 # ClickUp Task Skill
@@ -20,6 +20,7 @@ Determine from the conversation:
 - Is there a **ClickUp task URL** already provided? If yes, this is an update to an existing task. If no, you'll be creating a new one.
 - Is there **Freelo task content or a Freelo link** provided? If not, immediately ask the user: **"Is this a task migrated from Freelo, or a brand new task unrelated to Freelo?"** — and wait for the answer before proceeding.
 - Are there **multiple Freelo items** being merged into one ClickUp task?
+- Read `LOCAL.md` in this skill's directory if it exists — it holds workspace-specific values (Notion template page IDs, teamspace/list locations) used in Steps 2 and 3.
 
 ## Step 2: Ask all required questions upfront
 
@@ -34,10 +35,10 @@ Use `AskUserQuestion` to ask all of the following in a single call — do not sk
 
 ## Step 3: Fetch the Notion template
 
-Read `LOCAL.md` in this skill's directory. If it exists, it lists the Notion
-template page ID for each task type. Based on the task type answer, fetch the
-correct template **before drafting anything** using the Notion MCP
-`notion-fetch` tool, and use its structure as the basis for the description.
+If `LOCAL.md` was found in Step 1, it lists the Notion template page ID for
+each task type. Based on the task type answer, fetch the correct template
+**before drafting anything** using the Notion MCP `notion-fetch` tool, and use
+its structure as the basis for the description.
 
 If `LOCAL.md` does not exist, skip the fetch and use the template structures
 in Step 5 directly (or ask the user for their own template page IDs if they
@@ -49,7 +50,7 @@ If a ClickUp task URL was provided, use `clickup_get_task` to retrieve the curre
 
 ## Step 5: Draft the description
 
-Write the description in English using the Notion template structure. Follow these rules strictly:
+Write the description in English using the template structure for the task type. Follow these rules strictly:
 
 ### Formatting rules (apply to ALL tasks)
 

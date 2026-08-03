@@ -26,7 +26,7 @@ Maintain the two artifacts that carry a project's domain knowledge:
 
 4. **For ADRs:**
    - Name the file `docs/adr/NNNN-short-kebab-title.md`, where `NNNN` is the next zero-padded number after the highest existing one.
-   - Fill all four sections: Context, Decision (an active sentence), Consequences (costs stated honestly), Alternatives considered.
+   - Start with the header block (`Status:`, `Date:`), then fill all four sections: Context, Decision (an active sentence), Consequences (costs stated honestly), Alternatives considered.
    - Never edit an accepted ADR's body — write a superseding ADR and mark the old one `Status: superseded by ADR-NNNN`.
 
 5. **Update inline, not later.** Write the change in the same conversation that surfaced it — glossaries and decision logs that wait for "later" go stale and get ignored.
