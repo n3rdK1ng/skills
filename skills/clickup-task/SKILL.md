@@ -7,18 +7,28 @@ description: >
   brand new tasks unrelated to Freelo. Trigger any time the user pastes a Freelo task description and
   mentions ClickUp, provides a ClickUp task URL alongside task content they want written up, or asks
   to create a ClickUp task without any Freelo content.
-allowed-tools: AskUserQuestion, mcp__claude_ai_ClickUp__clickup_create_task, mcp__claude_ai_ClickUp__clickup_update_task, mcp__claude_ai_ClickUp__clickup_get_task, mcp__claude_ai_ClickUp__clickup_add_tag_to_task, mcp__claude_ai_ClickUp__clickup_get_custom_fields, mcp__claude_ai_ClickUp__clickup_get_list, mcp__claude_ai_ClickUp__clickup_filter_tasks, mcp__claude_ai_ClickUp__clickup_resolve_assignees, mcp__claude_ai_ClickUp__clickup_find_member_by_name, Read, mcp__claude_ai_Notion__notion-fetch
+allowed-tools: AskUserQuestion, mcp__fgg__task_get, mcp__fgg__clickup_create_task, mcp__fgg__clickup_update_task, mcp__fgg__clickup_list_tasks, mcp__fgg__clickup_api, Read, mcp__claude_ai_Notion__notion-fetch
 ---
 
 # ClickUp Task Skill
 
 This skill handles creating and updating ClickUp tasks — either migrating from Freelo or creating new tasks from scratch — following a strict format and approval workflow.
 
+Every ClickUp and Freelo call goes through the **fgg MCP** (`mcp__fgg__*`), signed with your own keys:
+
+| Need | Tool |
+| --- | --- |
+| Read a ClickUp or Freelo task | `task_get` with `source` (`clickup` / `freelo`) and the task id from its URL |
+| Find tasks | `clickup_list_tasks` |
+| Create a task | `clickup_create_task` |
+| Change a task (description, status, priority, estimate, assignees, tags) | `clickup_update_task` |
+| Members, a list's statuses, custom fields, anything else | `clickup_api` (`GET /team`, `GET /list/{id}`, `GET /list/{id}/field`, `POST /task/{id}/field/{field_id}`) |
+
 ## Step 1: Parse the request
 
 Determine from the conversation:
 - Is there a **ClickUp task URL** already provided? If yes, this is an update to an existing task. If no, you'll be creating a new one.
-- Is there **Freelo task content or a Freelo link** provided? If not, immediately ask the user: **"Is this a task migrated from Freelo, or a brand new task unrelated to Freelo?"** — and wait for the answer before proceeding.
+- Is there **Freelo task content or a Freelo link** provided? For a link, read the task with `task_get` (`source: "freelo"`). If neither, immediately ask the user: **"Is this a task migrated from Freelo, or a brand new task unrelated to Freelo?"** — and wait for the answer before proceeding.
 - Are there **multiple Freelo items** being merged into one ClickUp task?
 - Read `LOCAL.md` in this skill's directory if it exists — it holds workspace-specific values (Notion template page IDs, teamspace/list locations) used in Steps 2 and 3.
 
@@ -46,7 +56,7 @@ have them).
 
 ## Step 4: Fetch the existing ClickUp task (if updating)
 
-If a ClickUp task URL was provided, use `clickup_get_task` to retrieve the current task details — description, assignees, tags, status, priority. This helps you preserve what should stay and only change what's needed.
+If a ClickUp task URL was provided, use `task_get` (`source: "clickup"`) to retrieve the current task details — description, assignees, tags, status, priority. This helps you preserve what should stay and only change what's needed.
 
 ## Step 5: Draft the description
 
@@ -65,7 +75,7 @@ Write the description in English using the template structure for the task type.
 
 ### API write/read behaviour
 
-- **Writing**: Always use the `markdown_description` field (not `description`) when creating or updating tasks — this is the only field that preserves formatting
+- **Writing**: Pass the description as Markdown in the fgg tools' `description` field — fgg sends it as ClickUp's Markdown content, the only field that preserves formatting
 - **Reading**: The API strips formatting on read, so you cannot verify headings via API response. Direct the user to check the ClickUp UI to confirm headings and lists rendered correctly
 
 ### Normal task template structure
@@ -127,7 +137,8 @@ If the user requests changes, apply them and show the revised draft again before
 
 Once the user approves:
 
-- **Updating**: Use `clickup_update_task` with the approved description via `markdown_description`. Keep assignees, tags, priority, and status as confirmed in Step 2.
-- **Creating**: Use `clickup_create_task` in the correct list via `markdown_description`. Add tags separately with `clickup_add_tag_to_task` if needed. Set priority and assignee as confirmed.
+- **Updating**: Use `clickup_update_task` with the approved description in `description`. Keep assignees, tags, priority, status and the time estimate (`estimateMinutes`) as confirmed in Step 2; tags change through `addTags` / `removeTags`.
+- **Creating**: Use `clickup_create_task` in the correct list (`listId`) with the approved description in `description`, and the confirmed `status`, `priority`, `tags` and `assigneeIds`. It takes no estimate, so set one afterwards with `clickup_update_task` (`estimateMinutes`).
+- **Assignees**: `clickup_api GET /team` lists the workspace's members and their ids.
 
 Always confirm with a link to the task when done.
