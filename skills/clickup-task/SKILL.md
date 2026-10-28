@@ -71,7 +71,7 @@ Write the description in English using the template structure for the task type.
 - **Links section**: Always include at the end, even if empty, formatted as a bulleted list
 - **Bug task names**: Always include the bug emoji at the start of the name
 - **No original Freelo text** in the description — rewrite into clean English
-- **Czech terms**: Never translate Czech names or domain-specific terms from the Freelo task (e.g. `rezie`, project names, role names, etc.) — keep them exactly as written
+- **Czech terms**: Write in English everything that is not a proper name. A screen, tab, button or report of the app goes by the English name its own UI gives it, taken from the glossary the session provides (`LOCAL.md` or the request); one no glossary lists stays exactly as written. Roles and other domain words (e.g. `vedoucí`, `docházka`) are translated, with the glossary's word where it has one. Proper names — people, companies, projects — stay exactly as written
 
 ### API write/read behaviour
 
